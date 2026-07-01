@@ -318,14 +318,27 @@
       const tH = trainingRows[0] || [];
 
       const jCol = {
-        issueKey: 0, issueId: 1, summary: 2, reporter: 3,
-        dept: 5, status: 14, description: 19, created: 26,
-        effectiveSavings: 8, totalCount: 9,
-        startDate: 11, actualEnd: 13, plannedEnd: 12,
-        businessImpact: 7, customerImpact: 10,
-        assignee: 17, solution: 20,
-        blockerCategory: 16, stageGate: 15,
-        caseLabelFlag: 29, caseLabelValue: 30
+        issueKey: findColIndex(jH, "Issue key"),
+        issueId: findColIndex(jH, "Issue id"),
+        summary: findColIndex(jH, "Summary"),
+        reporter: findColIndex(jH, "Reporter"),
+        dept: findColIndex(jH, "Components"),
+        status: findColIndex(jH, "Status"),
+        description: findColIndex(jH, "Description"),
+        created: findColIndex(jH, "Created"),
+        effectiveSavings: findColIndex(jH, "Effective Savings"),
+        totalCount: findColIndex(jH, "Total count"),
+        startDate: findColIndex(jH, "Start Date"),
+        actualEnd: findColIndex(jH, "End Date"),
+        plannedEnd: findColIndex(jH, "Planned End Date"),
+        businessImpact: findColIndex(jH, "Business impact"),
+        customerImpact: findColIndex(jH, "Customer impact"),
+        assignee: findColIndex(jH, "Assignee"),
+        solution: findColIndex(jH, "Solution"),
+        blockerCategory: findColIndex(jH, "Blocker Category"),
+        stageGate: findColIndex(jH, "Stage Gate") !== -1 ? findColIndex(jH, "Stage Gate") : findColIndex(jH, "Custom field (Stage Gate)"),
+        caseLabelFlag: findColIndex(jH, "Case Label"),
+        caseLabelValue: findColIndex(jH, "Concise Description")
       };
 
       const hCol = {
@@ -369,7 +382,8 @@
         const r = jiraRows[i];
         if (!r || !r.length) continue;
         const issueId = g(r, jCol.issueId);
-        if (!issueId || String(issueId).trim() === '') continue;
+        const issueKey = g(r, jCol.issueKey);
+        if ((!issueId || String(issueId).trim() === '') && (!issueKey || String(issueKey).trim() === '')) continue;
         const cr = Array(77).fill(null);
         cr[0]=g(r,jCol.issueKey); cr[1]=g(r,jCol.issueId); cr[2]=g(r,jCol.summary);
         cr[3]=g(r,jCol.reporter); cr[4]=g(r,jCol.dept); cr[5]=g(r,jCol.status);
@@ -765,7 +779,7 @@
       };
 
       const navItems = [
-        { id: 'opex', label: 'OPEX CI Dashboard', icon: 'LayoutDashboard' },
+        { id: 'opex', label: 'Continuous Improvement Dashboard', icon: 'LayoutDashboard' },
       ];
 
       return (
@@ -798,16 +812,8 @@
               })}
             </nav>
 
-            {/* INTEGRATION TOGGLE BUTTON */}
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setIntegrationOpen(!integrationOpen)} 
-                className="bg-emerald-950 hover:bg-emerald-900 text-slate-100 border border-[#91c13e]/30 px-3 py-1.5 rounded-lg text-xs font-black uppercase flex items-center gap-2 tracking-wider transition-all"
-              >
-                <Icon name="RefreshCw" className="w-3.5 h-3.5 text-[#91c13e]" />
-                <span>Sync Data</span>
-              </button>
-            </div>
+            {/* No sync button for TL view */}
+            <div />
           </header>
 
           {/* DYNAMIC COLLAPSIBLE DATA INTEGRATION PANEL */}
@@ -954,48 +960,25 @@
                   <div className="space-y-4 animate-fade-in text-xs max-w-4xl">
                     <div className="flex items-center gap-2 text-sm font-black text-[#91c13e] uppercase">
                       <Icon name="Globe" className="w-5 h-5 text-[#91c13e]" />
-                      <span>Live Google Sheet — 3-Tab Sync</span>
+                      <span>Live Google Sheet — Single Tab Sync</span>
                     </div>
-
                     <div className="bg-emerald-950/40 p-4 rounded-xl border border-emerald-800/40 space-y-2 text-slate-300">
-                      <span className="font-bold text-white block">💡 How to connect each tab:</span>
+                      <span className="font-bold text-white block">💡 How to connect:</span>
                       <ol className="list-decimal list-inside space-y-1.5 ml-1 font-semibold text-slate-200">
                         <li>Open your tracker in Google Sheets.</li>
                         <li>Go to <strong>File &gt; Share &gt; Publish to web</strong>.</li>
-                        <li>Select a tab (e.g. <strong className="text-[#91c13e]">Database Jira</strong>) → set format to <strong className="text-[#91c13e]">CSV</strong> → click Publish → copy URL.</li>
-                        <li>Repeat for <strong className="text-[#91c13e]">Headcount Tracker - Linked</strong> and <strong className="text-[#91c13e]">White Belt Training OPEX Tracking</strong>.</li>
-                        <li>Paste each URL below and click <strong className="text-[#91c13e]">Connect All</strong>. URLs are saved and auto-load on every visit.</li>
+                        <li>Select your team tab → set format to <strong className="text-[#91c13e]">CSV</strong> → click Publish → copy URL.</li>
+                        <li>Paste the URL below and click <strong className="text-[#91c13e]">Connect</strong>.</li>
                       </ol>
                     </div>
-
                     <div className="space-y-3">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-black tracking-wider text-slate-300 block">1. Database Jira Tab URL</label>
+                        <label className="text-[10px] uppercase font-black tracking-wider text-slate-300 block">Team Data Tab URL</label>
                         <input
                           type="text"
-                          placeholder="Paste 'Database Jira' published CSV URL..."
+                          placeholder="Paste published CSV URL..."
                           value={googleUrlJira}
                           onChange={e => setGoogleUrlJira(e.target.value)}
-                          className="bg-[#062115] border border-[#91c13e]/30 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-[#91c13e] w-full font-mono font-semibold"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-black tracking-wider text-slate-300 block">2. Headcount Tracker Tab URL</label>
-                        <input
-                          type="text"
-                          placeholder="Paste 'Headcount Tracker - Linked' published CSV URL..."
-                          value={googleUrlHc}
-                          onChange={e => setGoogleUrlHc(e.target.value)}
-                          className="bg-[#062115] border border-[#91c13e]/30 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-[#91c13e] w-full font-mono font-semibold"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-black tracking-wider text-slate-300 block">3. White Belt Training Tab URL</label>
-                        <input
-                          type="text"
-                          placeholder="Paste 'White Belt Training OPEX Tracking' published CSV URL..."
-                          value={googleUrlTr}
-                          onChange={e => setGoogleUrlTr(e.target.value)}
                           className="bg-[#062115] border border-[#91c13e]/30 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-[#91c13e] w-full font-mono font-semibold"
                         />
                       </div>
@@ -1004,7 +987,7 @@
                           onClick={fetchThreeSheets}
                           className="bg-[#91c13e] text-[#062115] hover:bg-[#94D500] font-black uppercase text-xs px-6 py-3 rounded-xl transition-all shadow-md shrink-0 font-extrabold tracking-wider"
                         >
-                          Connect All 3 Tabs
+                          Connect
                         </button>
                       </div>
                     </div>
@@ -1380,7 +1363,7 @@
           {/* Sub-header Filter controls */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-[#062115] tracking-tight">OPEX CI Dashboard</h1>
+              <h1 className="text-2xl font-black text-[#062115] tracking-tight">Continuous Improvement Dashboard</h1>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Continuous Improvement Portfolio</p>
             </div>
             <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">

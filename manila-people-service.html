@@ -1124,7 +1124,7 @@
           return true;
         }).map(item => {
           const row = item.row;
-          const createdDate = parseDateSafe(row[colIndex.created]);
+          const createdDate = parseDateSafe(row[colIndex.created]) || parseDateSafe(row[colIndex.startDate]);
           const status = row[colIndex.status] || "Open";
           const statusLower = status.toLowerCase().trim();
           const isCurrentPipeline = ['open', 'on hold', 'on-hold', 'in progress', 'reopened'].includes(statusLower);

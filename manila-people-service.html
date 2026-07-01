@@ -318,27 +318,27 @@
       const tH = trainingRows[0] || [];
 
       const jCol = {
-        issueKey: findColIndex(jH, "Issue key"),
-        issueId: findColIndex(jH, "Issue id"),
-        summary: findColIndex(jH, "Summary"),
-        reporter: findColIndex(jH, "Reporter"),
-        dept: findColIndex(jH, "Components"),
-        status: findColIndex(jH, "Status"),
-        description: findColIndex(jH, "Description"),
-        created: findColIndex(jH, "Created"),
-        effectiveSavings: findColIndex(jH, "Effective Savings"),
-        totalCount: findColIndex(jH, "Total count"),
-        startDate: findColIndex(jH, "Start Date"),
-        actualEnd: findColIndex(jH, "End Date"),
-        plannedEnd: findColIndex(jH, "Planned End Date"),
-        businessImpact: findColIndex(jH, "Business impact"),
-        customerImpact: findColIndex(jH, "Customer impact"),
-        assignee: findColIndex(jH, "Assignee"),
-        solution: findColIndex(jH, "Solution"),
-        blockerCategory: findColIndex(jH, "Blocker Category"),
-        stageGate: findColIndex(jH, "Stage Gate") !== -1 ? findColIndex(jH, "Stage Gate") : findColIndex(jH, "Custom field (Stage Gate)"),
-        caseLabelFlag: findColIndex(jH, "Case Label"),
-        caseLabelValue: findColIndex(jH, "Concise Description")
+        issueKey: 0,
+        issueId: 0,
+        summary: 1,
+        reporter: 2,
+        dept: 3,
+        startDate: 4,
+        status: 5,
+        stageGate: 6,
+        caseLabelFlag: 7,
+        caseLabelValue: 8,
+        description: 8,
+        created: -1,
+        effectiveSavings: -1,
+        totalCount: -1,
+        actualEnd: -1,
+        plannedEnd: -1,
+        businessImpact: -1,
+        customerImpact: -1,
+        assignee: -1,
+        solution: -1,
+        blockerCategory: -1
       };
 
       const hCol = {
@@ -381,18 +381,17 @@
       for (let i = 1; i < jiraRows.length; i++) {
         const r = jiraRows[i];
         if (!r || !r.length) continue;
-        const issueId = g(r, jCol.issueId);
         const issueKey = g(r, jCol.issueKey);
-        if ((!issueId || String(issueId).trim() === '') && (!issueKey || String(issueKey).trim() === '')) continue;
+        if (!issueKey || String(issueKey).trim() === '') continue;
         const cr = Array(77).fill(null);
-        cr[0]=g(r,jCol.issueKey); cr[1]=g(r,jCol.issueId); cr[2]=g(r,jCol.summary);
+        cr[0]=g(r,jCol.issueKey); cr[1]=g(r,jCol.issueKey); cr[2]=g(r,jCol.summary);
         cr[3]=g(r,jCol.reporter); cr[4]=g(r,jCol.dept); cr[5]=g(r,jCol.status);
-        cr[6]=g(r,jCol.description); cr[7]=g(r,jCol.created);
-        cr[11]=g(r,jCol.effectiveSavings); cr[12]=g(r,jCol.totalCount);
-        cr[13]=g(r,jCol.startDate); cr[14]=g(r,jCol.actualEnd); cr[15]=g(r,jCol.plannedEnd);
-        cr[16]=g(r,jCol.businessImpact); cr[17]=g(r,jCol.customerImpact);
-        cr[18]=g(r,jCol.assignee); cr[19]=g(r,jCol.solution);
-        cr[20]=g(r,jCol.blockerCategory); cr[21]=g(r,jCol.stageGate);
+        cr[6]=g(r,jCol.description); cr[7]=null;
+        cr[11]=null; cr[12]=null;
+        cr[13]=g(r,jCol.startDate); cr[14]=null; cr[15]=null;
+        cr[16]=null; cr[17]=null;
+        cr[18]=null; cr[19]=null;
+        cr[20]=null; cr[21]=g(r,jCol.stageGate);
         cr[29]=g(r,jCol.caseLabelFlag); cr[30]=g(r,jCol.caseLabelValue);
         out.push({ row: cr, index_: idx++ });
       }

@@ -413,6 +413,16 @@
       return out;
     }
 
+    // Team definitions — shared across App and OpexCiDashboard
+    const TEAMS = [
+      { id: 'manila-na', label: 'Manila - NA', full: 'Manila - NA - People Services' },
+      { id: 'manila-ps', label: 'Manila', full: 'Manila - People Service' },
+      { id: 'na-ps', label: 'NA', full: 'NA - People Service' },
+      { id: 'opex', label: 'OPEX', full: 'OPEX' },
+      { id: 'sekg-payroll', label: 'SE/KG Payroll', full: 'SE/KG - Payroll' },
+      { id: 'sekg-ps', label: 'SE/KG People', full: 'SE/KG - People Services' },
+    ];
+
     // Main App Container incorporating Google Sheet & Local Excel update components
     function App() {
       const [view, setView] = useState('opex');
@@ -746,14 +756,7 @@
         });
       };
 
-      const TEAMS = [
-        { id: 'manila-na', label: 'Manila - NA', full: 'Manila - NA - People Services' },
-        { id: 'manila-ps', label: 'Manila', full: 'Manila - People Service' },
-        { id: 'na-ps', label: 'NA', full: 'NA - People Service' },
-        { id: 'opex', label: 'OPEX', full: 'OPEX' },
-        { id: 'sekg-payroll', label: 'SE/KG Payroll', full: 'SE/KG - Payroll' },
-        { id: 'sekg-ps', label: 'SE/KG People', full: 'SE/KG - People Services' },
-      ];
+      const navItems = [];
 
       return (
         <div className="min-h-screen flex flex-col antialiased">

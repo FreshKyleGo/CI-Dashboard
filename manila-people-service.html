@@ -1015,7 +1015,7 @@
 
           {/* PORTAL VIEWPORT */}
           <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
-            {view === 'opex' && <OpexCiDashboard data={data} />}
+            {view === 'opex' && <OpexCiDashboard data={data} activeTeam={activeTeam} setActiveTeam={setActiveTeam} />}
             {view === 'headcount' && <HeadcountTracker data={data} />}
             {view === 'training' && (
               <LssTrainingTracker data={data} updateItem={updateItem} deleteItem={deleteItem} insertItem={insertItem} />
@@ -1031,7 +1031,7 @@
        =========================================================================== */
        
     // VIEW 1 — OPEX CI DASHBOARD (sheet: "Database Jira")
-    function OpexCiDashboard({ data }) {
+    function OpexCiDashboard({ data, activeTeam, setActiveTeam }) {
       const [yearFilter, setYearFilter] = useState('All');
       const [halfYearFilter, setHalfYearFilter] = useState('All');
       const [quarterFilter, setQuarterFilter] = useState('All');

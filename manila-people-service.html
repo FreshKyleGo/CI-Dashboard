@@ -1187,7 +1187,9 @@
             blockerCategory: row[colIndex.blockerCategory],
             caseLabel,
             stageGate,
-            projectHealth
+            projectHealth,
+            effectiveSavings: rawEffSavings,
+            totalCount: rawTotalCount
           };
         });
       }, [data, colIndex, headers]);

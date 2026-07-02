@@ -1611,10 +1611,10 @@
                             )}
                           </td>
                           <td className="py-4 px-4 text-right text-xs font-black text-slate-700">
-                            {row.effectiveSavings > 0 ? row.effectiveSavings.toLocaleString() : <span className="text-slate-400">—</span>}
+                            {parseFloat(row.effectiveSavings) > 0 ? parseFloat(row.effectiveSavings).toLocaleString() : <span className="text-slate-400">—</span>}
                           </td>
                           <td className="py-4 px-6 text-right text-xs font-black text-slate-700">
-                            {row.totalCount > 0 ? row.totalCount.toLocaleString() : <span className="text-slate-400">—</span>}
+                            {parseFloat(row.totalCount) > 0 ? parseFloat(row.totalCount).toLocaleString() : <span className="text-slate-400">—</span>}
                           </td>
                         </tr>
                         {isExpanded && (

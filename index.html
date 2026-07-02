@@ -1644,7 +1644,7 @@
                                       </p>
                                     </div>
                                     <div>
-                                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Project End Date</span>
+                                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{row.isCompleted || row.isClosed ? 'Project End Date' : 'Planned End Date'}</span>
                                       <p className="font-bold text-slate-700 mt-0.5">
                                         {row.endDate ? row.endDate.toLocaleDateString() : 'N/A'}
                                       </p>

@@ -324,8 +324,8 @@
         effectiveSavings: 8, totalCount: 9,
         startDate: 11, actualEnd: 13, plannedEnd: 12,
         businessImpact: 7, customerImpact: 10,
-        assignee: 17, solution: 20,
-        blockerCategory: 16, stageGate: 15,
+        assignee: 17, solution: 19,
+        blockerCategory: 20, stageGate: 15,
         caseLabelFlag: 29, caseLabelValue: 30
       };
 
@@ -378,9 +378,9 @@
         cr[6]=g(r,jCol.description); cr[7]=null;
         cr[11]=g(r,jCol.effectiveSavings); cr[12]=g(r,jCol.totalCount);
         cr[13]=g(r,jCol.startDate); cr[14]=g(r,jCol.actualEnd); cr[15]=g(r,jCol.plannedEnd);
-        cr[16]=null; cr[17]=null;
-        cr[18]=null; cr[19]=null;
-        cr[20]=null; cr[21]=g(r,jCol.stageGate);
+        cr[16]=g(r,jCol.businessImpact); cr[17]=g(r,jCol.customerImpact);
+        cr[18]=g(r,jCol.assignee); cr[19]=g(r,jCol.solution);
+        cr[20]=g(r,jCol.blockerCategory); cr[21]=g(r,jCol.stageGate);
         cr[29]=g(r,jCol.caseLabelFlag); cr[30]=g(r,jCol.caseLabelValue);
         out.push({ row: cr, index_: idx++ });
       }

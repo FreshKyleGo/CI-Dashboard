@@ -1207,10 +1207,24 @@
       }, [data, colIndex, headers]);
 
       // Apply Navigation Filters globally
+      const normalizeDept = (s) => (s || '')
+        .toLowerCase()
+        .replace(/services?\b/g, 'service')
+        .replace(/[-\/]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
       const globallyFilteredData = useMemo(() => {
         const activeTeamFull = TEAMS.find(t => t.id === activeTeam)?.full || '';
+        const activeTeamNorm = normalizeDept(activeTeamFull);
+        const allTeamNorms = TEAMS.map(t => normalizeDept(t.full));
         return processedData.filter(d => {
-          const matchesTeam = d.dept === activeTeamFull;
+          const deptNorm = normalizeDept(d.dept);
+          // Only match if this dept value uniquely identifies exactly one team by prefix —
+          // e.g. "NA" matches "na people service" but NOT "manila na people service" (directional startsWith),
+          // and an ambiguous bare value like "SE/KG" (matches both SE/KG teams) matches neither, on purpose.
+          const candidateTeams = deptNorm ? allTeamNorms.filter(tn => tn.startsWith(deptNorm) || deptNorm.startsWith(tn)) : [];
+          const matchesTeam = deptNorm !== '' && candidateTeams.length === 1 && candidateTeams[0] === activeTeamNorm;
           const matchesYear = yearFilter === 'All' || d.year.toString() === yearFilter;
           const isH1 = d.quarter === 'Q1' || d.quarter === 'Q2';
           const isH2 = d.quarter === 'Q3' || d.quarter === 'Q4';

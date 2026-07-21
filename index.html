@@ -332,8 +332,8 @@
         effectiveSavings: 8, totalCount: 9,
         startDate: 11, actualEnd: 13, plannedEnd: 12,
         businessImpact: 7, customerImpact: 10,
-        assignee: 17, solution: 19,
-        blockerCategory: 20, stageGate: 15,
+        assignee: 17, solution: 20,
+        blockerCategory: 16, stageGate: 15,
         caseLabelFlag: 29, caseLabelValue: 30
       };
 
@@ -1690,13 +1690,15 @@
                                       <span className="font-semibold text-slate-600 truncate">{row.customerImpact || 'Internal Excellence'}</span>
                                     </div>
                                   </div>
-                                  <div>
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Blocker Category</span>
-                                    <div className="flex items-center gap-2 mt-1 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                                      <Icon name="Tag" className="w-4 h-4 text-rose-500" />
-                                      <span className="font-semibold text-slate-600 truncate">{row.blockerCategory || 'No blocker category specified.'}</span>
+                                  {row.isDelayed && (
+                                    <div>
+                                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Blocker Category</span>
+                                      <div className="flex items-center gap-2 mt-1 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+                                        <Icon name="Tag" className="w-4 h-4 text-rose-500" />
+                                        <span className="font-semibold text-slate-600 truncate">{row.blockerCategory || 'No blocker category specified.'}</span>
+                                      </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               </div>
                             </td>

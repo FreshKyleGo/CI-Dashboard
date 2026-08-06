@@ -1130,6 +1130,12 @@
 
       const [tableOwnerFilter, setTableOwnerFilter] = useState('All');
       const [tableTeamLeaderFilter, setTableTeamLeaderFilter] = useState('All');
+
+      useEffect(() => {
+        if (activeTeam !== 'manila-ps' && tableTeamLeaderFilter !== 'All') {
+          setTableTeamLeaderFilter('All');
+        }
+      }, [activeTeam]);
       const [tableStatusFilter, setTableStatusFilter] = useState('All');
       const [tableHealthFilter, setTableHealthFilter] = useState('All');
       const [tableCaseLabelFilter, setTableCaseLabelFilter] = useState('All');
@@ -1602,10 +1608,12 @@
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Strategic track log index</p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <select value={tableTeamLeaderFilter} onChange={e => setTableTeamLeaderFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
-                  <option value="All">All Team Leaders</option>
-                  {TEAM_LEADERS.map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
-                </select>
+                {activeTeam === 'manila-ps' && (
+                  <select value={tableTeamLeaderFilter} onChange={e => setTableTeamLeaderFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
+                    <option value="All">All Team Leaders</option>
+                    {TEAM_LEADERS.map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
+                  </select>
+                )}
                 <select value={tableOwnerFilter} onChange={e => setTableOwnerFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
                   <option value="All">All Owners</option>
                   {tableOwnerOptions.filter(o => o !== 'All').map(o => <option key={o} value={o}>{o}</option>)}

@@ -433,6 +433,81 @@
       { id: 'sekg-ps', label: 'SE/KG People', full: 'SE/KG - People Services' },
     ];
 
+    // Manila Team Leader rosters — each member is a list of accepted name variants
+    // (nicknames / alt spellings). Matching also tolerates a Jira name that drops
+    // middle names, since it's compared by first+last only as a fallback.
+    const TEAM_LEADERS = [
+      { name: 'Rhoda Fe Gaufo', members: [
+          ['Kenneth Moldez'], ['Ian Bunda'], ['Loriemerle Joy Arzaga'], ['Liza Bigaw'],
+          ['Angelica Basas'], ['Pamela Joy Manzano'],
+          ['Raymund Dineros', 'Raymund "Archie" Dineros', 'Archie Dineros'],
+      ]},
+      { name: 'Chancery Velasco', members: [
+          ['Claudine Tuatis'], ['Mary Ann Gaviola'], ['Sahara Bolo'],
+          ['Karina Barliso', 'Karen Barliso'], ['Carlo Mendiola'], ['Charlene Culiat'],
+          ['Emerson Tobias'],
+      ]},
+      { name: 'Michael John Villano', members: [
+          ['Arwin N. Galit', 'Arwin Galit'], ['Joel Dayondon'],
+          ['Marie Abigail Aguirre', 'Abby Aguirre'], ['Kim Gabrielle Lapitan'],
+          ['Jigger Bryan Plazo'], ['Daniel Sarco', 'DJ Sarco'], ['Julie Ann Furuc'],
+          ['Graciella Ramona Cruz'], ['Maj Bautista'], ['Ynna Alaine Cañon'],
+          ['Rodielene Legaspi', 'Roda Legaspi'],
+      ]},
+      { name: 'Loraine Ayne Fadriquela', members: [
+          ['Layla Marie Shaznay Rodriguez'], ['Jaymee Lynette Abedoza'],
+          ['Willyn Bañadera'], ['Kimberly Olazo'], ['Rachel Joy Baloloy'],
+          ['June Santiago'], ['Ralph Upod'],
+      ]},
+      { name: 'John Macadangdang', members: [
+          ['Eunice Catapang'], ['Kimberly Ulpindo Abao'], ['Janet Balana'],
+          ['Ronito Bati'], ['Jimber Bautista'],
+          ['Euriza Ann de Leon-Binarao', 'Yuri de Leon'],
+      ]},
+      { name: 'Rich Andrew Canlas', members: [
+          ['Jeneviv Cha'], ['Ellen Mae Lazo'], ['Arsenia Roque', 'Arcie Roque'],
+          ['Axel Rose Castromero'], ['Maricar Sarmiento'], ['Christal Anne Santos'],
+          ['Dana Cruz', 'Dana Dela Cruz'],
+      ]},
+    ];
+
+    const normalizeName = (s) => (s || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/["'".]/g, '')
+      .replace(/[-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // A name's "match keys": the full normalized string, plus a first+last-only
+    // fallback so a Jira name missing a middle name still resolves correctly.
+    const nameKeys = (fullName) => {
+      const norm = normalizeName(fullName);
+      const parts = norm.split(' ').filter(Boolean);
+      const keys = new Set([norm]);
+      if (parts.length > 1) keys.add(parts[0] + ' ' + parts[parts.length - 1]);
+      return Array.from(keys);
+    };
+
+    const TL_NAME_LOOKUP = (() => {
+      const map = {};
+      TEAM_LEADERS.forEach(tl => {
+        tl.members.forEach(aliasList => {
+          aliasList.forEach(alias => {
+            nameKeys(alias).forEach(k => { map[k] = tl.name; });
+          });
+        });
+      });
+      return map;
+    })();
+
+    const resolveTeamLeader = (rawName) => {
+      for (const k of nameKeys(rawName)) {
+        if (TL_NAME_LOOKUP[k]) return TL_NAME_LOOKUP[k];
+      }
+      return null;
+    };
+
     // Main App Container incorporating Google Sheet & Local Excel update components
     function App() {
       const [view, setView] = useState('opex');
@@ -1054,6 +1129,7 @@
       const [initiativeTypeFilter, setInitiativeTypeFilter] = useState('CI');
 
       const [tableOwnerFilter, setTableOwnerFilter] = useState('All');
+      const [tableTeamLeaderFilter, setTableTeamLeaderFilter] = useState('All');
       const [tableStatusFilter, setTableStatusFilter] = useState('All');
       const [tableHealthFilter, setTableHealthFilter] = useState('All');
       const [tableCaseLabelFilter, setTableCaseLabelFilter] = useState('All');
@@ -1345,11 +1421,12 @@
       const portfolioData = useMemo(() => {
         const filtered = globallyFilteredData.filter(d => {
           const matchesOwner = tableOwnerFilter === 'All' || d.lead === tableOwnerFilter;
+          const matchesTeamLeader = tableTeamLeaderFilter === 'All' || resolveTeamLeader(d.lead) === tableTeamLeaderFilter;
           const matchesStatus = tableStatusFilter === 'All' || d.status === tableStatusFilter;
           const matchesHealth = tableHealthFilter === 'All' || (d.isCurrentPipeline && d.projectHealth === tableHealthFilter);
           const matchesCaseLabel = tableCaseLabelFilter === 'All' || d.caseLabel === tableCaseLabelFilter;
           const matchesStageGate = tableStageGateFilter === 'All' || d.stageGate === tableStageGateFilter;
-          return matchesOwner && matchesStatus && matchesHealth && matchesCaseLabel && matchesStageGate;
+          return matchesOwner && matchesTeamLeader && matchesStatus && matchesHealth && matchesCaseLabel && matchesStageGate;
         });
         return filtered.sort((a, b) => {
           let aVal = a[sortField];
@@ -1359,7 +1436,7 @@
           }
           return sortAsc ? (aVal - bVal) : (bVal - aVal);
         });
-      }, [globallyFilteredData, tableOwnerFilter, tableStatusFilter, tableHealthFilter, tableCaseLabelFilter, tableStageGateFilter, sortField, sortAsc]);
+      }, [globallyFilteredData, tableOwnerFilter, tableTeamLeaderFilter, tableStatusFilter, tableHealthFilter, tableCaseLabelFilter, tableStageGateFilter, sortField, sortAsc]);
 
       const yearsOptions = useMemo(() => ['All', ...new Set(processedData.map(d => d.year.toString()).filter(y => y !== 'Unknown' && y !== '1899'))].sort(), [processedData]);
       const deptsOptions = useMemo(() => ['All', ...new Set(processedData.map(d => d.dept))].sort(), [processedData]);
@@ -1525,6 +1602,10 @@
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Strategic track log index</p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
+                <select value={tableTeamLeaderFilter} onChange={e => setTableTeamLeaderFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
+                  <option value="All">All Team Leaders</option>
+                  {TEAM_LEADERS.map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
+                </select>
                 <select value={tableOwnerFilter} onChange={e => setTableOwnerFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
                   <option value="All">All Owners</option>
                   {tableOwnerOptions.filter(o => o !== 'All').map(o => <option key={o} value={o}>{o}</option>)}

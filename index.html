@@ -492,6 +492,7 @@
     const TL_NAME_LOOKUP = (() => {
       const map = {};
       TEAM_LEADERS.forEach(tl => {
+        nameKeys(tl.name).forEach(k => { map[k] = tl.name; });
         tl.members.forEach(aliasList => {
           aliasList.forEach(alias => {
             nameKeys(alias).forEach(k => { map[k] = tl.name; });

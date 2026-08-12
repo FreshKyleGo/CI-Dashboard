@@ -1321,6 +1321,30 @@
         });
       }, [processedData, activeTeam, yearFilter, halfYearFilter, quarterFilter, monthFilter, searchQuery]);
 
+      // Smart search: if searching for what looks like a ticket number and it isn't
+      // in the current team's results, jump to whichever team tab actually has it.
+      useEffect(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return;
+        const looksLikeIssueKey = /^[a-z]+-\d+$/i.test(q) || /^\d{2,}$/.test(q);
+        if (!looksLikeIssueKey) return;
+        if (globallyFilteredData.length > 0) return; // already found in the current tab
+
+        const hit = processedData.find(d => d.issueKey.toLowerCase().includes(q));
+        if (!hit) return;
+
+        const allTeamNorms = TEAMS.map(t => ({ id: t.id, norm: normalizeDept(t.full) }));
+        const deptNorm = normalizeDept(hit.dept);
+        const candidate = allTeamNorms.find(t => t.norm.startsWith(deptNorm) || deptNorm.startsWith(t.norm));
+        if (candidate && candidate.id !== activeTeam) {
+          setActiveTeam(candidate.id);
+          setYearFilter('All');
+          setHalfYearFilter('All');
+          setQuarterFilter('All');
+          setMonthFilter('All');
+        }
+      }, [searchQuery, processedData, globallyFilteredData, activeTeam]);
+
       const activeCiData = useMemo(() => {
         return globallyFilteredData.filter(d => !d.isClosed);
       }, [globallyFilteredData]);

@@ -1489,7 +1489,7 @@
       const portfolioData = useMemo(() => {
         const filtered = globallyFilteredData.filter(d => {
           const matchesOwner = tableOwnerFilter === 'All' || d.lead === tableOwnerFilter;
-          const matchesTeamLeader = tableTeamLeaderFilter === 'All' || resolveTeamLeader(d.lead) === tableTeamLeaderFilter;
+          const matchesTeamLeader = tableTeamLeaderFilter === 'All' || (tableTeamLeaderFilter === 'Rhoda Fe Gaufo' ? !!resolveTeamLeader(d.lead) : resolveTeamLeader(d.lead) === tableTeamLeaderFilter);
           const matchesStatus = tableStatusFilter.length === 0 || tableStatusFilter.includes(d.status);
           const matchesHealth = tableHealthFilter === 'All' || (d.isCurrentPipeline && d.projectHealth === tableHealthFilter);
           const matchesCaseLabel = tableCaseLabelFilter === 'All' || d.caseLabel === tableCaseLabelFilter;

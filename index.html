@@ -509,6 +509,14 @@
       return null;
     };
 
+    // The 5 TLs now under Rhoda's directorship — used to surface just their own
+    // personal submissions under her filter, without pulling in their rosters.
+    const OTHER_MANILA_TL_NAMES = ['Chancery Velasco', 'Michael John Villano', 'Loraine Ayne Fadriquela', 'John Macadangdang', 'Rich Andrew Canlas'];
+    const isOtherManilaTLPersonalName = (rawName) => {
+      const keys = nameKeys(rawName);
+      return OTHER_MANILA_TL_NAMES.some(tlName => nameKeys(tlName).some(k => keys.includes(k)));
+    };
+
     // Main App Container incorporating Google Sheet & Local Excel update components
     function App() {
       const [view, setView] = useState('opex');
@@ -1489,7 +1497,7 @@
       const portfolioData = useMemo(() => {
         const filtered = globallyFilteredData.filter(d => {
           const matchesOwner = tableOwnerFilter === 'All' || d.lead === tableOwnerFilter;
-          const matchesTeamLeader = tableTeamLeaderFilter === 'All' || resolveTeamLeader(d.lead) === tableTeamLeaderFilter;
+          const matchesTeamLeader = tableTeamLeaderFilter === 'All' || (tableTeamLeaderFilter === 'Rhoda Fe Gaufo' ? (resolveTeamLeader(d.lead) === 'Rhoda Fe Gaufo' || isOtherManilaTLPersonalName(d.lead)) : resolveTeamLeader(d.lead) === tableTeamLeaderFilter);
           const matchesStatus = tableStatusFilter.length === 0 || tableStatusFilter.includes(d.status);
           const matchesHealth = tableHealthFilter === 'All' || (d.isCurrentPipeline && d.projectHealth === tableHealthFilter);
           const matchesCaseLabel = tableCaseLabelFilter === 'All' || d.caseLabel === tableCaseLabelFilter;
@@ -1681,10 +1689,7 @@
                 {activeTeam === 'manila-ps' && (
                   <select value={tableTeamLeaderFilter} onChange={e => setTableTeamLeaderFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
                     <option value="All">All Team Leaders</option>
-                    <option value="Rhoda Fe Gaufo">Rhoda Fe Gaufo</option>
-                    <optgroup label="Under Rhoda Fe Gaufo">
-                      {TEAM_LEADERS.filter(tl => tl.name !== 'Rhoda Fe Gaufo').map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
-                    </optgroup>
+                    {TEAM_LEADERS.map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
                   </select>
                 )}
                 <select value={tableOwnerFilter} onChange={e => setTableOwnerFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">

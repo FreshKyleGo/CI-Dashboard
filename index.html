@@ -23,6 +23,9 @@
   <!-- SheetJS (XLSX) for client-side Excel parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+  <!-- PapaParse for robust, RFC4180-compliant CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
   <!-- React & ReactDOM UMD -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -723,36 +726,13 @@
         const response = await fetch(exportUrl);
         if (!response.ok) throw new Error("Failed to fetch CSV. Make sure the tab is published.");
         const csvText = await response.text();
-        const rows = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < csvText.length; i++) {
-          const char = csvText[i];
-          if (char === '"') {
-            if (inQuotes && csvText[i+1] === '"') { current += '"'; i++; }
-            else { inQuotes = !inQuotes; current += char; }
-          } else if ((char === '\n' || (char === '\r' && csvText[i+1] === '\n')) && !inQuotes) {
-            if (char === '\r') i++;
-            rows.push(current);
-            current = '';
-          } else {
-            current += char;
-          }
-        }
-        if (current) rows.push(current);
-        return rows.map(line => {
-          const result = []; let cur = '', inQ = false;
-          for (let i = 0; i < line.length; i++) {
-            const c = line[i];
-            if (c === '"') {
-              if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-              else { inQ = !inQ; }
-            } else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
-            else { cur += c; }
-          }
-          result.push(cur.trim());
-          return result;
-        }).filter(row => row.some(cell => cell !== ''));
+        // PapaParse handles RFC4180 edge cases (stray quotes, embedded newlines/commas)
+        // far more robustly than a hand-rolled parser — a single bad character in one
+        // row can no longer misalign every column after it.
+        const parsed = Papa.parse(csvText, { skipEmptyLines: true });
+        return parsed.data
+          .map(row => row.map(cell => (cell || '').toString().trim()))
+          .filter(row => row.some(cell => cell !== ''));
       };
 
       // Fetch single team tab

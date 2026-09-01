@@ -1490,6 +1490,12 @@
 
       const portfolioData = useMemo(() => {
         const filtered = globallyFilteredData.filter(d => {
+          // Confidential FTE-reduction tickets stay out of the TL-visible table
+          // entirely (title, description, everything) — but they're still counted
+          // in every KPI total above, since those read globallyFilteredData directly.
+          const isConfidentialFTE = (d.summary || '').trim().toLowerCase().startsWith('fte saving');
+          if (isConfidentialFTE) return false;
+
           const matchesOwner = tableOwnerFilter === 'All' || d.lead === tableOwnerFilter;
           const matchesTeamLeader = tableTeamLeaderFilter === 'All' || (tableTeamLeaderFilter === 'Rhoda Fe Gaufo' ? (resolveTeamLeader(d.lead) === 'Rhoda Fe Gaufo' || isOtherManilaTLPersonalName(d.lead)) : resolveTeamLeader(d.lead) === tableTeamLeaderFilter);
           const matchesStatus = tableStatusFilter.length === 0 || tableStatusFilter.includes(d.status);

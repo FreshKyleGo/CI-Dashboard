@@ -517,6 +517,44 @@
       return null;
     };
 
+    // Europe - People Services country/region rosters — same shape and matching
+    // as TEAM_LEADERS above. Regions with no members yet still appear as filter
+    // options (an empty submission count, not "not offered").
+    const EUROPE_REGIONS = [
+      { name: 'SE/KG', members: [
+          ['Madlin Farshbaf'], ['Jennifer Braun'], ['Jessica Walther'],
+          ['Magdalena Czech'], ['Mirko Merchiori'], ['Theresa Lüder'],
+      ]},
+      { name: 'Poland', members: [
+          ['Michal Rajewski'], ['Kamila Kosowska'],
+      ]},
+      { name: 'UK/IE', members: [
+          ['Mon Glover'],
+      ]},
+      { name: 'France', members: [] },
+      { name: 'BENELUX', members: [] },
+      { name: 'Nordics', members: [] },
+    ];
+
+    const EUROPE_NAME_LOOKUP = (() => {
+      const map = {};
+      EUROPE_REGIONS.forEach(region => {
+        region.members.forEach(aliasList => {
+          aliasList.forEach(alias => {
+            nameKeys(alias).forEach(k => { map[k] = region.name; });
+          });
+        });
+      });
+      return map;
+    })();
+
+    const resolveEuropeRegion = (rawName) => {
+      for (const k of nameKeys(rawName)) {
+        if (EUROPE_NAME_LOOKUP[k]) return EUROPE_NAME_LOOKUP[k];
+      }
+      return null;
+    };
+
     // The 5 TLs now under Rhoda's directorship — used to surface just their own
     // personal submissions under her filter, without pulling in their rosters.
     const OTHER_MANILA_TL_NAMES = ['Chancery Velasco', 'Michael John Villano', 'Loraine Ayne Fadriquela', 'John Macadangdang', 'Rich Andrew Canlas'];
@@ -1167,6 +1205,14 @@
           setTableTeamLeaderFilter('All');
         }
       }, [activeTeam]);
+
+      const [tableEuropeRegionFilter, setTableEuropeRegionFilter] = useState('All');
+
+      useEffect(() => {
+        if (activeTeam !== 'europe-ps' && tableEuropeRegionFilter !== 'All') {
+          setTableEuropeRegionFilter('All');
+        }
+      }, [activeTeam]);
       const [tableStatusFilter, setTableStatusFilter] = useState([]);
       const [tableHealthFilter, setTableHealthFilter] = useState('All');
       const [tableCaseLabelFilter, setTableCaseLabelFilter] = useState('All');
@@ -1499,12 +1545,13 @@
 
           const matchesOwner = tableOwnerFilter === 'All' || d.lead === tableOwnerFilter;
           const matchesTeamLeader = tableTeamLeaderFilter === 'All' || (tableTeamLeaderFilter === 'Rhoda Fe Gaufo' ? (resolveTeamLeader(d.lead) === 'Rhoda Fe Gaufo' || isOtherManilaTLPersonalName(d.lead)) : resolveTeamLeader(d.lead) === tableTeamLeaderFilter);
+          const matchesEuropeRegion = tableEuropeRegionFilter === 'All' || resolveEuropeRegion(d.lead) === tableEuropeRegionFilter;
           const matchesStatus = tableStatusFilter.length === 0 || tableStatusFilter.includes(d.status);
           const matchesHealth = tableHealthFilter === 'All' || (d.isCurrentPipeline && d.projectHealth === tableHealthFilter);
           const matchesCaseLabel = tableCaseLabelFilter === 'All' || d.caseLabel === tableCaseLabelFilter;
           const matchesStageGate = tableStageGateFilter === 'All' || d.stageGate === tableStageGateFilter;
           const matchesProcessTier = tableProcessTierFilter === 'All' || d.processTier === tableProcessTierFilter;
-          return matchesOwner && matchesTeamLeader && matchesStatus && matchesHealth && matchesCaseLabel && matchesStageGate && matchesProcessTier;
+          return matchesOwner && matchesTeamLeader && matchesEuropeRegion && matchesStatus && matchesHealth && matchesCaseLabel && matchesStageGate && matchesProcessTier;
         });
         return filtered.sort((a, b) => {
           let aVal = a[sortField];
@@ -1514,7 +1561,7 @@
           }
           return sortAsc ? (aVal - bVal) : (bVal - aVal);
         });
-      }, [globallyFilteredData, tableOwnerFilter, tableTeamLeaderFilter, tableStatusFilter, tableHealthFilter, tableCaseLabelFilter, tableStageGateFilter, tableProcessTierFilter, sortField, sortAsc]);
+      }, [globallyFilteredData, tableOwnerFilter, tableTeamLeaderFilter, tableEuropeRegionFilter, tableStatusFilter, tableHealthFilter, tableCaseLabelFilter, tableStageGateFilter, tableProcessTierFilter, sortField, sortAsc]);
 
       const yearsOptions = useMemo(() => ['All', ...new Set(processedData.map(d => d.year.toString()).filter(y => y !== 'Unknown' && y !== '1899'))].sort(), [processedData]);
       const deptsOptions = useMemo(() => ['All', ...new Set(processedData.map(d => d.dept))].sort(), [processedData]);
@@ -1707,6 +1754,12 @@
                     {TEAM_LEADERS.map(tl => <option key={tl.name} value={tl.name}>{tl.name}</option>)}
                   </select>
                 )}
+                {activeTeam === 'europe-ps' && (
+                  <select value={tableEuropeRegionFilter} onChange={e => setTableEuropeRegionFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
+                    <option value="All">All Countries</option>
+                    {EUROPE_REGIONS.map(r => <option key={r.name} value={r.name}>{r.name}</option>)}
+                  </select>
+                )}
                 <select value={tableOwnerFilter} onChange={e => setTableOwnerFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 outline-none focus:ring-2 focus:ring-[#91c13e] cursor-pointer">
                   <option value="All">All Owners</option>
                   {tableOwnerOptions.filter(o => o !== 'All').map(o => <option key={o} value={o}>{o}</option>)}
@@ -1744,6 +1797,7 @@
                   type="button"
                   onClick={() => {
                     setTableTeamLeaderFilter('All');
+                    setTableEuropeRegionFilter('All');
                     setTableOwnerFilter('All');
                     setTableStatusFilter([]);
                     setTableHealthFilter('All');

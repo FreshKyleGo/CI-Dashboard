@@ -449,7 +449,7 @@
       { id: 'manila-ps', label: 'Manila', full: 'Manila - People Service' },
       { id: 'na-ps', label: 'NA', full: 'NA - People Service' },
       { id: 'opex', label: 'OPEX', full: 'OPEX' },
-      { id: 'sekg-payroll', label: 'SE/KG Payroll', full: 'SE/KG - Payroll' },
+      { id: 'payroll', label: 'Payroll', full: 'Payroll' },
       { id: 'europe-ps', label: 'Europe', full: 'Europe - People Services' },
     ];
 
@@ -2914,7 +2914,7 @@
             return false;
           }
           const deptVal = (row[opexCol.dept] || "").toString().trim();
-          const VALID_DEPTS = ['europe - people services','manila - people service','na - people service','opex','se/kg - payroll','manila - na - people services','anz - people service'];
+          const VALID_DEPTS = ['europe - people services','manila - people service','na - people service','opex','payroll','manila - na - people services','anz - people service'];
           const deptLower = deptVal.toLowerCase();
           if (!deptVal || !VALID_DEPTS.some(c => deptLower.includes(c) || c.includes(deptLower))) return false;
           return true;
